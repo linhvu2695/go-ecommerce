@@ -1,0 +1,24 @@
+@baseUrl=http://localhost:8082/v1
+
+### User Registration
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "email": "test1@gmail.com",
+  "firstname": "linh",
+  "lastname": "vu",
+  "password": "mypassword123",
+  "purpose": "",
+  "username": "test1"
+}
+
+
+### Verify OTP
+POST {{baseUrl}}/user/verify_otp
+Content-Type: application/json
+
+{
+  "email": "test1@gmail.com",
+  "otp": "200022"
+}
