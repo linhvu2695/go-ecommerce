@@ -1,4 +1,13 @@
 # Boilerplate for Golang Applications
+[![Go Report Card](https://goreportcard.com/badge/github.com/your-username/go-ecommerce)](https://goreportcard.com/report/github.com/your-username/go-ecommerce)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Coverage Status](https://coveralls.io/repos/github/your-username/go-ecommerce/badge.svg?branch=main)](https://coveralls.io/github/your-username/go-ecommerce?branch=main)
+
+## Project Overview
+
+This is a robust Golang application boilerplate designed to accelerate the development of e-commerce applications. It provides a solid foundation with pre-configured modules for dependency injection, logging, database management, email handling, and API documentation.
+
+**Purpose:** To provide a ready-to-use starting point for building scalable and maintainable e-commerce applications in Go.
 
 - Run in dev: `make dev`
 - Run in containers: `make docker-buildup`

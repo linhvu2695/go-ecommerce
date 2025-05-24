@@ -3,6 +3,7 @@ package initialization
 import (
 	"go-ecommerce/global"
 	"go-ecommerce/internal/controller"
+	"go-ecommerce/internal/middleware"
 	"go-ecommerce/internal/router"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func NewRouter() *gin.Engine {
 	// middlewares
 
 	// routers
+	r.Use(middleware.NewRateLimiter().GlobalRateLimiter())
 	adminRouter := router.RouterGroupApp.Admin
 	userRouter := router.RouterGroupApp.User
 
