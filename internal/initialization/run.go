@@ -10,6 +10,7 @@ func Run() *gin.Engine {
 	InitRedis()
 	InitSmtp()
 	InitKafka()
+	InitPrometheus()
 
 	r := NewRouter()
 

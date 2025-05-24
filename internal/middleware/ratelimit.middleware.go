@@ -109,7 +109,7 @@ func (rl *RateLimiter) PrivateRateLimiter() gin.HandlerFunc {
 		uuid := c.ClientIP()
 		userId, err := context.GetUserID(c.Request.Context())
 		if err == nil {
-			uuid = string(userId)
+			uuid = fmt.Sprint(userId)
 		}
 
 		limiter := rl.FilterLimitUrlPath(urlPath)

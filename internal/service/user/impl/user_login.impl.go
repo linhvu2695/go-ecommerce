@@ -25,10 +25,15 @@ type UserLogin struct {
 	r *database.Queries
 }
 
+func NewUserLogin(r *database.Queries) UserLogin {
+	return UserLogin{r: r}
+}
+
 func (u UserLogin) Setup2FA(ctx context.Context, in *models.Setup2FAInput) (int, error) {
 	// Check if 2FA is already enabled
 	is2FAEnabled, err := u.r.Is2FAEnabled(ctx, in.UserId)
 	if err != nil {
+		global.Logger.Error(fmt.Sprintf("error checking if 2FA is enabled for user ID %d", in.UserId), zap.Error(err))
 		return response.Err2FASetupFailed, err
 	}
 	if is2FAEnabled > 0 {
@@ -42,6 +47,7 @@ func (u UserLogin) Setup2FA(ctx context.Context, in *models.Setup2FAInput) (int,
 		Email:  sql.NullString{String: in.Email, Valid: true},
 	})
 	if err != nil {
+		global.Logger.Error(fmt.Sprintf("error enable 2FA for user ID %d", in.UserId), zap.Error(err))
 		return response.Err2FASetupFailed, err
 	}
 
@@ -52,6 +58,7 @@ func (u UserLogin) Setup2FA(ctx context.Context, in *models.Setup2FAInput) (int,
 
 	err = emailUtils.SendEmailOtp([]string{in.Email}, global.Config.Smtp.Username, otp)
 	if err != nil {
+		global.Logger.Error(fmt.Sprintf("error sending 2FA OTP email.\nUser ID: %d.\nEmail: %s", in.UserId, in.Email), zap.Error(err))
 		return response.Err2FASetupFailed, err
 	}
 
@@ -62,6 +69,7 @@ func (u UserLogin) Verify2FA(ctx context.Context, in *models.Verify2FAInput) (in
 	// Check if OTP is available
 	enable, err := u.r.Is2FAEnabled(ctx, in.UserId)
 	if err != nil {
+		global.Logger.Error(fmt.Sprintf("error checking if 2FA is enabled for user ID %d", in.UserId), zap.Error(err))
 		return response.Err2FAVerifyFailed, err
 	}
 	if enable > 0 {
@@ -74,6 +82,7 @@ func (u UserLogin) Verify2FA(ctx context.Context, in *models.Verify2FAInput) (in
 	if err == redis.Nil {
 		return response.Err2FAVerifyFailed, fmt.Errorf("key %s does not exist", key2FAOtp)
 	} else if err != nil {
+		global.Logger.Error(fmt.Sprintf("error getting 2FA OTP for user ID %d", in.UserId), zap.Error(err))
 		return response.Err2FAVerifyFailed, err
 	}
 
@@ -95,21 +104,18 @@ func (u UserLogin) Verify2FA(ctx context.Context, in *models.Verify2FAInput) (in
 	// Remove OTP from redis
 	_, err = global.Redis.Del(ctx, key2FAOtp).Result()
 	if err != nil {
+		global.Logger.Error(fmt.Sprintf("error deleting 2FA OTP from cache for user ID %d", in.UserId), zap.Error(err))
 		return response.ErrInternalError, err
 	}
 
 	return response.CodeSuccess, nil
 }
 
-func NewUserLogin(r *database.Queries) UserLogin {
-	return UserLogin{r: r}
-}
-
 func (u UserLogin) Login(ctx context.Context, in *models.LoginInput) (out models.LoginOutput, err error) {
 	user, err := u.r.GetUserByEmail(ctx, in.Email)
 	if err != nil {
 		global.Logger.Error(fmt.Sprintf("Error get user by email %s", in.Email), zap.Error(err))
-		out.Code = response.ErrInternalError
+		out.Code = response.ErrAuthFailed
 		return out, err
 	}
 

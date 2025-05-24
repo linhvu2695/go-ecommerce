@@ -22,9 +22,10 @@ func NewRouter() *gin.Engine {
 	}
 
 	// middlewares
+	r.Use(middleware.NewRateLimiter().GlobalRateLimiter())
+	r.Use(middleware.MetricsMiddleware())
 
 	// routers
-	r.Use(middleware.NewRateLimiter().GlobalRateLimiter())
 	adminRouter := router.RouterGroupApp.Admin
 	userRouter := router.RouterGroupApp.User
 

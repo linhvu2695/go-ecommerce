@@ -1,4 +1,5 @@
 docs
 logs
 tmp
+environment/*/
 config/prod.yaml

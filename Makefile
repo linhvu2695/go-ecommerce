@@ -30,6 +30,6 @@ swag:
 docker-down:
 	docker compose down
 docker-up:
-	docker compose up -d
+	docker compose -f environment/docker-compose-dev.yaml up -d
 docker-buildup:
 	docker compose up --build -d
